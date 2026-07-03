@@ -35,6 +35,13 @@ export interface HangupMessage extends SignalingEnvelope {
 	event: 'hangup'
 }
 
+export interface ServerErrorMessage {
+	event: 'server-error'
+	timestamp: number
+	reason: string
+	sessionId?: string
+}
+
 export type SignalMessage =
 	| JoinMessage
 	| LeaveMessage
@@ -42,4 +49,5 @@ export type SignalMessage =
 	| AnswerMessage
 	| IceCandidateMessage
 	| HangupMessage
+	| ServerErrorMessage
 

@@ -7,7 +7,7 @@ import {
   createLeaveMessage,
 } from '../../../realtime/signaling/protocol'
 import { SignalingWsClient } from '../../../realtime/signaling/wsClient'
-import { getCustomerAudioStream, stopStream, attachStream } from '../../../realtime/webrtc/media'
+import { attachStream, detachStream, getCustomerAudioStream, stopStream } from '../../../realtime/webrtc/media'
 import { CallPeer } from '../../../realtime/webrtc/peer'
 import type { SignalMessage } from '../../../shared/types/signaling.types'
 
@@ -30,14 +30,24 @@ export function CustomerCallView({
   const [status, setStatus] = useState('Idle')
 
   useEffect(() => {
+    const remoteVideoElement = remoteVideoRef.current
+
     return () => {
       peerRef.current?.close()
       wsRef.current?.close()
       stopStream(localAudioRef.current)
+      detachStream(remoteVideoElement)
     }
   }, [])
 
   const handleSignal = async (message: SignalMessage) => {
+    if (message.event === 'server-error') {
+      if (!message.sessionId || message.sessionId === sessionId) {
+        setStatus(`Server error: ${message.reason}`)
+      }
+      return
+    }
+
     const peer = peerRef.current
     if (!peer) {
       return
@@ -64,6 +74,7 @@ export function CustomerCallView({
       setStatus('Call ended by consultant')
       peer.close()
       peerRef.current = null
+      detachStream(remoteVideoRef.current)
     }
   }
 
@@ -112,6 +123,7 @@ export function CustomerCallView({
     peerRef.current?.close()
     wsRef.current?.close()
     stopStream(localAudioRef.current)
+    detachStream(remoteVideoRef.current)
     peerRef.current = null
     wsRef.current = null
     localAudioRef.current = null
@@ -120,9 +132,9 @@ export function CustomerCallView({
 
   return (
     <section className="panel">
-      <h2>Customer view</h2>
+      <h2 className='customer-view'>Customer view</h2>
       <p className="status">{status}</p>
-      <video ref={remoteVideoRef} className="video" playsInline autoPlay controls />
+      <video ref={remoteVideoRef} className="video" playsInline autoPlay />
       <div className="actions">
         <button type="button" onClick={start}>
           Join waiting room

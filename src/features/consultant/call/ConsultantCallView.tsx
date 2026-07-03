@@ -7,7 +7,7 @@ import {
   createOfferMessage,
 } from '../../../realtime/signaling/protocol'
 import { SignalingWsClient } from '../../../realtime/signaling/wsClient'
-import { attachStream, getConsultantMediaStream, stopStream } from '../../../realtime/webrtc/media'
+import { attachStream, detachStream, getConsultantMediaStream, stopStream } from '../../../realtime/webrtc/media'
 import { CallPeer } from '../../../realtime/webrtc/peer'
 import type { SignalMessage } from '../../../shared/types/signaling.types'
 
@@ -35,10 +35,19 @@ export function ConsultantCallView({
       peerRef.current?.close()
       wsRef.current?.close()
       stopStream(localMediaRef.current)
+      detachStream(localVideoRef.current)
+      detachStream(remoteAudioRef.current)
     }
   }, [])
 
   const handleSignal = async (message: SignalMessage) => {
+    if (message.event === 'server-error') {
+      if (!message.sessionId || message.sessionId === sessionId) {
+        setStatus(`Server error: ${message.reason}`)
+      }
+      return
+    }
+
     const peer = peerRef.current
     if (!peer) {
       return
@@ -62,7 +71,11 @@ export function ConsultantCallView({
     if (message.event === 'hangup') {
       setStatus('Call ended by customer')
       peer.close()
+      stopStream(localMediaRef.current)
       peerRef.current = null
+      localMediaRef.current = null
+      detachStream(localVideoRef.current)
+      detachStream(remoteAudioRef.current)
     }
   }
 
@@ -120,6 +133,8 @@ export function ConsultantCallView({
     peerRef.current?.close()
     wsRef.current?.close()
     stopStream(localMediaRef.current)
+    detachStream(localVideoRef.current)
+    detachStream(remoteAudioRef.current)
     peerRef.current = null
     wsRef.current = null
     localMediaRef.current = null
@@ -130,8 +145,8 @@ export function ConsultantCallView({
     <section className="panel">
       <h2>Consultant view</h2>
       <p className="status">{status}</p>
-      <video ref={localVideoRef} className="video" playsInline autoPlay muted controls />
-      <audio ref={remoteAudioRef} autoPlay controls />
+      <video ref={localVideoRef} className="video" playsInline autoPlay muted />
+      <audio ref={remoteAudioRef} autoPlay />
       <div className="actions">
         <button type="button" onClick={start}>
           Go online
