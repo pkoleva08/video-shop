@@ -31,12 +31,15 @@ export function ConsultantCallView({
   const [status, setStatus] = useState('Idle')
 
   useEffect(() => {
+    const localVideoElement = localVideoRef.current
+    const remoteAudioElement = remoteAudioRef.current
+
     return () => {
       peerRef.current?.close()
       wsRef.current?.close()
       stopStream(localMediaRef.current)
-      detachStream(localVideoRef.current)
-      detachStream(remoteAudioRef.current)
+      detachStream(localVideoElement)
+      detachStream(remoteAudioElement)
     }
   }, [])
 
@@ -159,3 +162,4 @@ export function ConsultantCallView({
     </section>
   )
 }
+
