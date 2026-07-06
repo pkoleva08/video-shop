@@ -6,7 +6,10 @@ import {
   createLeaveMessage,
   createOfferMessage,
 } from '../../../realtime/signaling/protocol'
+import { resolveSessionId, writeSessionIdToUrl } from '../../../realtime/signaling/sessionId'
+import { copySessionShareUrl } from '../../../realtime/signaling/sessionLink'
 import { SignalingWsClient } from '../../../realtime/signaling/wsClient'
+import { getMediaAccessErrorMessage } from '../../../realtime/webrtc/mediaError'
 import { attachStream, detachStream, getConsultantMediaStream, stopStream } from '../../../realtime/webrtc/media'
 import { CallPeer } from '../../../realtime/webrtc/peer'
 import type { SignalMessage } from '../../../shared/types/signaling.types'
@@ -15,14 +18,10 @@ interface ConsultantCallViewProps {
   signalingUrl?: string
 }
 
-function randomSessionId(): string {
-  return Math.random().toString(36).slice(2, 10)
-}
-
 export function ConsultantCallView({
   signalingUrl = 'ws://localhost:8080/ws/signaling',
 }: ConsultantCallViewProps) {
-  const sessionId = useMemo(() => randomSessionId(), [])
+  const { sessionId } = useMemo(() => resolveSessionId(window.location.search), [])
   const localVideoRef = useRef<HTMLVideoElement | null>(null)
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null)
   const wsRef = useRef<SignalingWsClient | null>(null)
@@ -33,6 +32,7 @@ export function ConsultantCallView({
   useEffect(() => {
     const localVideoElement = localVideoRef.current
     const remoteAudioElement = remoteAudioRef.current
+    writeSessionIdToUrl(sessionId)
 
     return () => {
       peerRef.current?.close()
@@ -41,7 +41,7 @@ export function ConsultantCallView({
       detachStream(localVideoElement)
       detachStream(remoteAudioElement)
     }
-  }, [])
+  }, [sessionId])
 
   const handleSignal = async (message: SignalMessage) => {
     if (message.event === 'server-error') {
@@ -125,8 +125,8 @@ export function ConsultantCallView({
       const offer = await peer.createOffer()
       ws.send(createOfferMessage(sessionId, offer))
       setStatus('Offer sent. Waiting for customer answer...')
-    } catch {
-      setStatus('Could not start call. Check camera/mic permission and signaling URL.')
+    } catch (error) {
+      setStatus(getMediaAccessErrorMessage(error, 'consultant'))
     }
   }
 
@@ -144,6 +144,11 @@ export function ConsultantCallView({
     setStatus('Call ended')
   }
 
+  const copySessionLink = async () => {
+    const copied = await copySessionShareUrl(sessionId)
+    setStatus(copied ? 'Session link copied.' : 'Could not copy session link.')
+  }
+
   return (
     <section className="panel">
       <h2>Consultant view</h2>
@@ -153,6 +158,9 @@ export function ConsultantCallView({
       <div className="actions">
         <button type="button" onClick={start}>
           Go online
+        </button>
+        <button type="button" onClick={() => void copySessionLink()}>
+          Copy session link
         </button>
         <button type="button" onClick={endCall}>
           End call

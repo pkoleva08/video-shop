@@ -6,7 +6,10 @@ import {
   createJoinMessage,
   createLeaveMessage,
 } from '../../../realtime/signaling/protocol'
+import { resolveSessionId, writeSessionIdToUrl } from '../../../realtime/signaling/sessionId'
+import { copySessionShareUrl } from '../../../realtime/signaling/sessionLink'
 import { SignalingWsClient } from '../../../realtime/signaling/wsClient'
+import { getMediaAccessErrorMessage } from '../../../realtime/webrtc/mediaError'
 import { attachStream, detachStream, getCustomerAudioStream, stopStream } from '../../../realtime/webrtc/media'
 import { CallPeer } from '../../../realtime/webrtc/peer'
 import type { SignalMessage } from '../../../shared/types/signaling.types'
@@ -15,14 +18,10 @@ interface CustomerCallViewProps {
   signalingUrl?: string
 }
 
-function randomSessionId(): string {
-  return Math.random().toString(36).slice(2, 10)
-}
-
 export function CustomerCallView({
   signalingUrl = 'ws://localhost:8080/ws/signaling',
 }: CustomerCallViewProps) {
-  const sessionId = useMemo(() => randomSessionId(), [])
+  const { sessionId } = useMemo(() => resolveSessionId(window.location.search), [])
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null)
   const wsRef = useRef<SignalingWsClient | null>(null)
   const peerRef = useRef<CallPeer | null>(null)
@@ -31,6 +30,7 @@ export function CustomerCallView({
 
   useEffect(() => {
     const remoteVideoElement = remoteVideoRef.current
+    writeSessionIdToUrl(sessionId)
 
     return () => {
       peerRef.current?.close()
@@ -38,7 +38,7 @@ export function CustomerCallView({
       stopStream(localAudioRef.current)
       detachStream(remoteVideoElement)
     }
-  }, [])
+  }, [sessionId])
 
   const handleSignal = async (message: SignalMessage) => {
     if (message.event === 'server-error') {
@@ -112,8 +112,8 @@ export function CustomerCallView({
       })
 
       ws.send(createJoinMessage(sessionId, 'customer', 'customer-page'))
-    } catch {
-      setStatus('Could not start call. Check mic permission and signaling URL.')
+    } catch (error) {
+      setStatus(getMediaAccessErrorMessage(error, 'customer'))
     }
   }
 
@@ -130,6 +130,11 @@ export function CustomerCallView({
     setStatus('Call ended')
   }
 
+  const copySessionLink = async () => {
+    const copied = await copySessionShareUrl(sessionId)
+    setStatus(copied ? 'Session link copied.' : 'Could not copy session link.')
+  }
+
   return (
     <section className="panel">
       <h2 className='customer-view'>Customer view</h2>
@@ -138,6 +143,9 @@ export function CustomerCallView({
       <div className="actions">
         <button type="button" onClick={start}>
           Join waiting room
+        </button>
+        <button type="button" onClick={() => void copySessionLink()}>
+          Copy session link
         </button>
         <button type="button" onClick={endCall}>
           End call
