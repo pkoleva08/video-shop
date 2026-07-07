@@ -6,6 +6,7 @@ import {
   createLeaveMessage,
   createOfferMessage,
 } from '../../../realtime/signaling/protocol'
+import { clientConfig } from '../../../config/clientConfig'
 import { resolveSessionId, writeSessionIdToUrl } from '../../../realtime/signaling/sessionId'
 import { copySessionShareUrl } from '../../../realtime/signaling/sessionLink'
 import { SignalingWsClient } from '../../../realtime/signaling/wsClient'
@@ -19,7 +20,7 @@ interface ConsultantCallViewProps {
 }
 
 export function ConsultantCallView({
-  signalingUrl = 'ws://localhost:8080/ws/signaling',
+  signalingUrl = clientConfig.signalingUrl,
 }: ConsultantCallViewProps) {
   const { sessionId } = useMemo(() => resolveSessionId(window.location.search), [])
   const localVideoRef = useRef<HTMLVideoElement | null>(null)

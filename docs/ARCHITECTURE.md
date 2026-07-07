@@ -12,6 +12,12 @@ Live consultation where customer receives consultant video and audio, while cust
 - `src/features/consultant/call`: Consultant call flow and offer publishing.
 - `src/pages`: Top-level pages for each role.
 
+## Backend modules
+
+- `backend/src/main/java/com/videoshop/backend/signaling`: Spring Boot WebSocket endpoint, session routing, queue coordination, and message validation.
+- `backend/src/main/java/com/videoshop/backend/api`: REST endpoints for health checks, queue stats, and consultant login.
+- `backend/src/main/resources/application.properties`: backend port and demo consultant credentials.
+
 ## Signaling flow (MVP)
 
 1. Both roles connect through WebSocket and send `join`.
@@ -29,6 +35,6 @@ Live consultation where customer receives consultant video and audio, while cust
 
 ## Current status
 
-- WebSocket and peer wrappers are scaffolded.
-- Customer and consultant views are wired to signaling events.
-- Backend integration endpoint is expected at `ws://localhost:8080/ws/signaling`.
+- WebRTC client flow is wired in the frontend for consultant and customer roles.
+- Spring Boot hosts the signaling endpoint at `ws://localhost:8080/ws/signaling`.
+- The backend also exposes `POST /api/consultants/login` and `GET /api/queue/stats`.

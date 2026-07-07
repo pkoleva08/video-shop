@@ -69,6 +69,23 @@ main {
   cursor: pointer;
 }
 
+.auth-form {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field input {
+  border: 1px solid #c4c4c4;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
 .meta {
   font-size: 13px;
   color: #666;

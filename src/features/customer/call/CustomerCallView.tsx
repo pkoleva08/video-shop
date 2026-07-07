@@ -6,6 +6,7 @@ import {
   createJoinMessage,
   createLeaveMessage,
 } from '../../../realtime/signaling/protocol'
+import { clientConfig } from '../../../config/clientConfig'
 import { resolveSessionId, writeSessionIdToUrl } from '../../../realtime/signaling/sessionId'
 import { copySessionShareUrl } from '../../../realtime/signaling/sessionLink'
 import { SignalingWsClient } from '../../../realtime/signaling/wsClient'
@@ -19,7 +20,7 @@ interface CustomerCallViewProps {
 }
 
 export function CustomerCallView({
-  signalingUrl = 'ws://localhost:8080/ws/signaling',
+  signalingUrl = clientConfig.signalingUrl,
 }: CustomerCallViewProps) {
   const { sessionId } = useMemo(() => resolveSessionId(window.location.search), [])
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null)
