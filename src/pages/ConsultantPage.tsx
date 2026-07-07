@@ -11,6 +11,7 @@ export function ConsultantPage() {
   const [name, setName] = useState<string | null>(null)
   const [status, setStatus] = useState('Please log in before going online.')
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const statusClass = status.toLowerCase().includes('could not') || status.toLowerCase().includes('failed')
     ? 'status status-error'
@@ -82,6 +83,7 @@ export function ConsultantPage() {
 
       setMode('login')
       setPassword('')
+      setShowPassword(false)
       setStatus(data.message ?? 'Registration successful. Please log in.')
     } catch {
       setStatus('Could not reach the Spring Boot backend.')
@@ -128,14 +130,24 @@ export function ConsultantPage() {
             </label>
             <label className="field">
               <span>Password</span>
-              <input
-                type="password"
-                name="password"
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Enter password"
-              />
+              <div className="password-field">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Enter password"
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
             </label>
             <div className="actions">
               <button type="submit" disabled={isLoading}>
@@ -151,6 +163,7 @@ export function ConsultantPage() {
                 type="button"
                 onClick={() => {
                   setMode(mode === 'login' ? 'register' : 'login')
+                  setShowPassword(false)
                   setStatus(
                     mode === 'login'
                       ? 'Create consultant account first, then log in.'

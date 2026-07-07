@@ -90,6 +90,26 @@ main {
   font: inherit;
 }
 
+.password-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.password-field input {
+  flex: 1;
+}
+
+.toggle-password {
+  border: 1px solid #c4c4c4;
+  background: #fff;
+  color: #0f766e;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .meta {
   font-size: 13px;
   color: #666;
