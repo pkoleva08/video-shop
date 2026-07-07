@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run dev:all",
     "dev:client": "vite",
     "dev:backend": "cd backend && mvnw.cmd spring-boot:run",
     "dev:all": "concurrently -k -n client,backend -c cyan,green \"npm:dev:client\" \"npm:dev:backend\"",

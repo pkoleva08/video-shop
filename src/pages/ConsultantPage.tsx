@@ -47,7 +47,7 @@ export function ConsultantPage() {
       setStatus('Login successful. Consultant console unlocked.')
     } catch {
       setName(null)
-      setStatus('Could not reach the Spring Boot backend.')
+      setStatus('Could not reach the Spring Boot backend. Start it with: npm run dev')
     } finally {
       setIsLoading(false)
     }
@@ -86,7 +86,7 @@ export function ConsultantPage() {
       setShowPassword(false)
       setStatus(data.message ?? 'Registration successful. Please log in.')
     } catch {
-      setStatus('Could not reach the Spring Boot backend.')
+      setStatus('Could not reach the Spring Boot backend. Start it with: npm run dev')
     } finally {
       setIsLoading(false)
     }
