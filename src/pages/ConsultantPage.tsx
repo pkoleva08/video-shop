@@ -12,6 +12,10 @@ export function ConsultantPage() {
   const [status, setStatus] = useState('Please log in before going online.')
   const [isLoading, setIsLoading] = useState(false)
 
+  const statusClass = status.toLowerCase().includes('could not') || status.toLowerCase().includes('failed')
+    ? 'status status-error'
+    : 'status'
+
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setIsLoading(true)
@@ -94,15 +98,18 @@ export function ConsultantPage() {
       {!name ? (
         <section className="panel">
           <h2>{mode === 'login' ? 'Consultant login' : 'Consultant registration'}</h2>
-          <p className="status">{status}</p>
+          <p className={statusClass}>{status}</p>
           <form
             className="auth-form"
+            autoComplete="on"
             onSubmit={(event) => void (mode === 'login' ? handleLogin(event) : handleRegister(event))}
           >
             {mode === 'register' && (
               <label className="field">
                 <span>Name</span>
                 <input
+                  name="name"
+                  autoComplete="name"
                   value={registerName}
                   onChange={(event) => setRegisterName(event.target.value)}
                   placeholder="e.g. Maria Petrova"
@@ -112,6 +119,8 @@ export function ConsultantPage() {
             <label className="field">
               <span>Username</span>
               <input
+                name="username"
+                autoComplete="username"
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 placeholder="Enter username"
@@ -121,6 +130,8 @@ export function ConsultantPage() {
               <span>Password</span>
               <input
                 type="password"
+                name="password"
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Enter password"
@@ -131,10 +142,10 @@ export function ConsultantPage() {
                 {isLoading
                   ? mode === 'login'
                     ? 'Logging in...'
-                    : 'Registering...'
+                    : 'Continuing...'
                   : mode === 'login'
                     ? 'Login'
-                    : 'Register'}
+                    : 'Continue'}
               </button>
               <button
                 type="button"
