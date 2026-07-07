@@ -14,10 +14,10 @@ public class ConsultantAuthService {
 	public ConsultantAuthService(
 		@Value("${videoshop.consultant.username}") String username,
 		@Value("${videoshop.consultant.password}") String password,
-		@Value("${videoshop.consultant.display-name}") String displayName
+		@Value("${videoshop.consultant.name}") String name
 	) {
 		if (!username.isBlank() && !password.isBlank()) {
-			accounts.put(username, new ConsultantAccount(username, password, displayName));
+			accounts.put(username, new ConsultantAccount(username, password, name));
 		}
 	}
 
@@ -27,13 +27,13 @@ public class ConsultantAuthService {
 			return new AuthenticationResult(false, null, "Invalid username or password.");
 		}
 
-		return new AuthenticationResult(true, account.displayName(), "Login successful.");
+		return new AuthenticationResult(true, account.name(), "Login successful.");
 	}
 
-	public RegistrationResult register(String username, String password, String displayName) {
+	public RegistrationResult register(String username, String password, String name) {
 		String normalizedUsername = username.trim();
 		String normalizedPassword = password.trim();
-		String normalizedDisplayName = displayName.trim();
+		String normalizedName = name.trim();
 
 		if (normalizedUsername.length() < 3) {
 			return new RegistrationResult(false, "Username must be at least 3 characters.");
@@ -43,14 +43,14 @@ public class ConsultantAuthService {
 			return new RegistrationResult(false, "Password must be at least 6 characters.");
 		}
 
-		if (normalizedDisplayName.isEmpty()) {
-			return new RegistrationResult(false, "Display name is required.");
+		if (normalizedName.isEmpty()) {
+			return new RegistrationResult(false, "Name is required.");
 		}
 
 		ConsultantAccount newAccount = new ConsultantAccount(
 			normalizedUsername,
 			normalizedPassword,
-			normalizedDisplayName
+			normalizedName
 		);
 
 		ConsultantAccount existing = accounts.putIfAbsent(normalizedUsername, newAccount);
@@ -61,10 +61,10 @@ public class ConsultantAuthService {
 		return new RegistrationResult(true, "Registration successful. Please log in.");
 	}
 
-	private record ConsultantAccount(String username, String password, String displayName) {
+	private record ConsultantAccount(String username, String password, String name) {
 	}
 
-	public record AuthenticationResult(boolean authenticated, String displayName, String message) {
+	public record AuthenticationResult(boolean authenticated, String name, String message) {
 	}
 
 	public record RegistrationResult(boolean registered, String message) {

@@ -48,7 +48,7 @@ public class BackendController {
 		}
 
 		return ResponseEntity.ok(
-			new ConsultantLoginResponse(true, result.displayName(), result.message())
+			new ConsultantLoginResponse(true, result.name(), result.message())
 		);
 	}
 
@@ -59,7 +59,7 @@ public class BackendController {
 		ConsultantAuthService.RegistrationResult result = consultantAuthService.register(
 			request.username(),
 			request.password(),
-			request.displayName()
+			request.name()
 		);
 
 		if (!result.registered()) {
@@ -80,11 +80,11 @@ public class BackendController {
 	public record ConsultantRegisterRequest(
 		@NotBlank String username,
 		@NotBlank String password,
-		@NotBlank String displayName
+		@NotBlank String name
 	) {
 	}
 
-	public record ConsultantLoginResponse(boolean authenticated, String displayName, String message) {
+	public record ConsultantLoginResponse(boolean authenticated, String name, String message) {
 	}
 
 	public record ConsultantRegisterResponse(boolean registered, String message) {

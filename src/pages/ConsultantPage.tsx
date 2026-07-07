@@ -7,8 +7,8 @@ export function ConsultantPage() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [registerDisplayName, setRegisterDisplayName] = useState('')
-  const [displayName, setDisplayName] = useState<string | null>(null)
+  const [registerName, setRegisterName] = useState('')
+  const [name, setName] = useState<string | null>(null)
   const [status, setStatus] = useState('Please log in before going online.')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -28,20 +28,20 @@ export function ConsultantPage() {
 
       const data = (await response.json()) as {
         authenticated?: boolean
-        displayName?: string | null
+        name?: string | null
         message?: string
       }
 
       if (!response.ok || !data.authenticated) {
-        setDisplayName(null)
+        setName(null)
         setStatus(data.message ?? 'Login failed.')
         return
       }
 
-      setDisplayName(data.displayName ?? username)
+      setName(data.name ?? username)
       setStatus('Login successful. Consultant console unlocked.')
     } catch {
-      setDisplayName(null)
+      setName(null)
       setStatus('Could not reach the Spring Boot backend.')
     } finally {
       setIsLoading(false)
@@ -62,7 +62,7 @@ export function ConsultantPage() {
         body: JSON.stringify({
           username,
           password,
-          displayName: registerDisplayName,
+          name: registerName,
         }),
       })
 
@@ -91,7 +91,7 @@ export function ConsultantPage() {
       <h1 className='video-shop'>Video Shop</h1>
       <p className="subtitle">Consultant publishes video and receives customer audio only.</p>
 
-      {!displayName ? (
+      {!name ? (
         <section className="panel">
           <h2>{mode === 'login' ? 'Consultant login' : 'Consultant registration'}</h2>
           <p className="status">{status}</p>
@@ -101,10 +101,10 @@ export function ConsultantPage() {
           >
             {mode === 'register' && (
               <label className="field">
-                <span>Display name</span>
+                <span>Name</span>
                 <input
-                  value={registerDisplayName}
-                  onChange={(event) => setRegisterDisplayName(event.target.value)}
+                  value={registerName}
+                  onChange={(event) => setRegisterName(event.target.value)}
                   placeholder="e.g. Maria Petrova"
                 />
               </label>
@@ -156,7 +156,7 @@ export function ConsultantPage() {
         <>
           <section className="panel">
             <h2>Consultant console</h2>
-            <p className="status">Logged in as {displayName}</p>
+            <p className="status">Logged in as {name}</p>
           </section>
           <ConsultantCallView />
         </>
