@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import type { SyntheticEvent } from 'react'
 import { clientConfig } from '../config/clientConfig'
 import { ConsultantCallView } from '../features/consultant/call/ConsultantCallView'
 
@@ -17,7 +17,7 @@ export function ConsultantPage() {
     ? 'status status-error'
     : 'status'
 
-  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     setIsLoading(true)
     setStatus('Checking consultant credentials...')
@@ -53,7 +53,7 @@ export function ConsultantPage() {
     }
   }
 
-  const handleRegister = async (event: FormEvent<HTMLFormElement>) => {
+  const handleRegister = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     setIsLoading(true)
     setStatus('Creating consultant profile...')
