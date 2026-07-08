@@ -59,6 +59,7 @@ public class SignalingWebSocketHandler extends TextWebSocketHandler {
 				return;
 			}
 
+			sessionRouter.broadcastToPeers(session, signalMessage.rawPayload());
 			sessionRouter.join(session, signalMessage.sessionId(), signalMessage.role());
 			return;
 		}

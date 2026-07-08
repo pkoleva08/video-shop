@@ -28,6 +28,7 @@ export function CustomerCallView({
   const peerRef = useRef<CallPeer | null>(null)
   const localAudioRef = useRef<MediaStream | null>(null)
   const [status, setStatus] = useState('Idle')
+  const [hasRemoteVideo, setHasRemoteVideo] = useState(false)
 
   useEffect(() => {
     const remoteVideoElement = remoteVideoRef.current
@@ -76,11 +77,13 @@ export function CustomerCallView({
       peer.close()
       peerRef.current = null
       detachStream(remoteVideoRef.current)
+      setHasRemoteVideo(false)
     }
   }
 
   const start = async () => {
     try {
+      setHasRemoteVideo(false)
       setStatus('Requesting customer microphone...')
       const localAudio = await getCustomerAudioStream()
       localAudioRef.current = localAudio
@@ -91,6 +94,15 @@ export function CustomerCallView({
         },
         onRemoteStream: (stream) => {
           attachStream(remoteVideoRef.current, stream)
+          const hasVideoTrack = stream.getVideoTracks().length > 0
+          setHasRemoteVideo(hasVideoTrack)
+          if (hasVideoTrack) {
+            stream.getVideoTracks().forEach((track) => {
+              track.onended = () => {
+                setHasRemoteVideo(false)
+              }
+            })
+          }
         },
         onConnectionStateChange: (connectionState) => {
           setStatus(`Connection: ${connectionState}`)
@@ -128,6 +140,7 @@ export function CustomerCallView({
     peerRef.current = null
     wsRef.current = null
     localAudioRef.current = null
+    setHasRemoteVideo(false)
     setStatus('Call ended')
   }
 
@@ -140,10 +153,16 @@ export function CustomerCallView({
     <section className="panel">
       <h2 className='customer-view'>Customer view</h2>
       <p className="status">{status}</p>
-      <video ref={remoteVideoRef} className="video" playsInline autoPlay />
-      <div className="actions">
-        <button type="button" onClick={start}>
-          Join waiting room
+    <video
+      ref={remoteVideoRef}
+      className={hasRemoteVideo ? 'video' : 'video video-hidden'}
+      playsInline
+      autoPlay
+    />
+    {!hasRemoteVideo && <div className="video video-placeholder">Waiting for consultant video...</div>}
+    <div className="actions">
+      <button type="button" onClick={start}>
+        Join waiting room
         </button>
         <button type="button" onClick={() => void copySessionLink()}>
           Copy session link

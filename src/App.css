@@ -58,6 +58,19 @@ main {
   border-radius: 10px;
 }
 
+.video-hidden {
+  display: none;
+}
+
+.video-placeholder {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  background: #f4f4f4;
+  color: #666;
+  border: 1px dashed #c4c4c4;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
